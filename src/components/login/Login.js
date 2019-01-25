@@ -1,14 +1,26 @@
 import React, {Component} from 'react'
 import { Nombre } from './Nombre'
+import axios from 'axios'
 class Login extends Component {
+
 
     constructor(props){
         super(props)
         this.state = {
           correo: null,
-          passw: null
+          passw: null,
+          productos: null
         }
       }
+    
+      componentDidMount = async() => {
+        let productoPromise = await axios.get('http://localhost:8000/productos/')
+        let [producto] = await Promise.all([productoPromise])
+        await console.log(producto.data)
+        await this.setState({
+            productos: producto.data
+        })
+    }
 
     changeCorreo = (e) => {
         let email = e.target.value
@@ -53,6 +65,21 @@ class Login extends Component {
                 }>Puchame</button>
 
                 <Nombre email={this.state.correo} />
+
+                {
+                    this.state.productos ?
+                        this.state.productos.length > 0 ?
+                            this.state.productos.map((producto, index)=>(
+                                <div className="producto" key={index}>
+                                    <h3>{producto.nombre}</h3>
+                                    <p>{producto.descripcion}</p>
+                                    <p>${producto.precio}</p>
+                                    <p>Stock: {producto.stock}</p>
+                                </div>
+                            ))
+                        :null
+                    : null
+                }
             </div>
         )
     }
